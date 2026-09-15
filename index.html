@@ -136,19 +136,43 @@
   }
 
   /* ---------- Galeria / Estrutura ---------- */
-  .gallery-grid{
-    display:grid; grid-template-columns:repeat(4, 1fr); grid-auto-rows:150px; gap:14px;
-    grid-auto-flow:dense;
+  /* ---------- Galeria / Estrutura (slider) ---------- */
+  .gallery-slider{
+    position:relative; border-radius:4px; overflow:hidden;
+    aspect-ratio:16/9; background:var(--black-soft);
+    border:1px solid var(--gray-line);
   }
-  .gallery-grid a{ display:block; overflow:hidden; position:relative; }
-  .gallery-grid img{
-    width:100%; height:100%; object-fit:cover; display:block;
-    transition:transform .5s ease, filter .5s ease;
-    filter:grayscale(15%) contrast(1.05);
+  .slider-track{
+    display:flex; height:100%; transition:transform .55s cubic-bezier(.65,0,.35,1);
   }
-  .gallery-grid a:hover img{ transform:scale(1.08); filter:grayscale(0%) contrast(1.1); }
-  .g-tall{ grid-row:span 2; }
-  .g-wide{ grid-column:span 2; }
+  .slide{ flex:0 0 100%; height:100%; position:relative; }
+  .slide img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .slider-arrow{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:5;
+    width:46px; height:46px; border-radius:50%; border:1px solid rgba(245,245,243,0.25);
+    background:rgba(10,10,10,0.55); backdrop-filter:blur(6px); color:var(--white);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:background .2s ease, border-color .2s ease, transform .2s ease;
+  }
+  .slider-arrow:hover{ background:var(--red); border-color:var(--red); }
+  .slider-arrow svg{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+  .slider-prev{ left:16px; }
+  .slider-next{ right:16px; }
+  .slider-dots{
+    position:absolute; bottom:16px; left:50%; transform:translateX(-50%); z-index:5;
+    display:flex; gap:8px;
+  }
+  .slider-dot{
+    width:8px; height:8px; border-radius:50%; background:rgba(245,245,243,0.35);
+    border:none; cursor:pointer; padding:0; transition:background .2s ease, transform .2s ease;
+  }
+  .slider-dot.active{ background:var(--red); transform:scale(1.3); }
+  .slider-counter{
+    position:absolute; top:16px; right:16px; z-index:5;
+    background:rgba(10,10,10,0.55); backdrop-filter:blur(6px); color:var(--white);
+    font-family:'Tomorrow'; font-size:12px; letter-spacing:0.05em;
+    padding:6px 12px; border-radius:20px; border:1px solid rgba(245,245,243,0.2);
+  }
 
   /* ---------- Modalidades ---------- */
   .modalidades{ background:var(--black-soft); }
@@ -300,8 +324,7 @@
     .plans-grid{ grid-template-columns:1fr 1fr; }
     .unit-grid{ grid-template-columns:1fr; }
     .footer-grid{ grid-template-columns:1fr 1fr; }
-    .gallery-grid{ grid-template-columns:repeat(3,1fr); grid-auto-rows:130px; }
-    .g-wide{ grid-column:span 1; }
+    .gallery-slider{ aspect-ratio:4/3; }
   }
   @media (max-width: 720px){
     .nav-links{ display:none; }
@@ -312,7 +335,8 @@
     .plans-grid{ grid-template-columns:1fr; }
     .footer-grid{ grid-template-columns:1fr; gap:32px; }
     .hero-hex{ opacity:0.5; right:-30vw; }
-    .gallery-grid{ grid-template-columns:repeat(2,1fr); grid-auto-rows:120px; }
+    .gallery-slider{ aspect-ratio:1/1; border-radius:0; }
+    .slider-arrow{ width:38px; height:38px; }
   }
 </style>
 </head>
@@ -375,16 +399,85 @@
       <h2>Estrutura Completa para o Seu Treino</h2>
       <p>Espaço amplo projetado para máxima performance e conforto. Contamos com áreas exclusivas para musculação, treino aeróbico, artes marciais e funcional, equipadas com o que há de mais moderno no mercado fitness.</p>
     </div>
-    <div class="gallery-grid">
-      <a href="photos/unid01-3.jpg" target="_blank" rel="noopener" class="g-tall"><img src="photos/unid01-3.jpg" alt="Musculação Red Dragon Gym"></a>
-      <a href="photos/unid01-1.jpg" target="_blank" rel="noopener" class="g-wide"><img src="photos/unid01-1.jpg" alt="Área de musculação"></a>
-      <a href="photos/unid02-7.jpg" target="_blank" rel="noopener"><img src="photos/unid02-7.jpg" alt="Bikes indoor"></a>
-      <a href="photos/unid01-4.jpg" target="_blank" rel="noopener"><img src="photos/unid01-4.jpg" alt="Anilhas e pesos livres"></a>
-      <a href="photos/unid02-16.jpg" target="_blank" rel="noopener" class="g-wide"><img src="photos/unid02-16.jpg" alt="Fachada Red Dragon Gym"></a>
-      <a href="photos/unid02-13.jpg" target="_blank" rel="noopener" class="g-tall"><img src="photos/unid02-13.jpg" alt="Espaço kids"></a>
+    <div class="gallery-slider" id="rdgSlider">
+      <div class="slider-track" id="sliderTrack">
+        <div class="slide"><img src="photos/unid01-3.jpg" alt="Musculação Red Dragon Gym" loading="lazy"></div>
+        <div class="slide"><img src="photos/unid01-1.jpg" alt="Área de musculação" loading="lazy"></div>
+        <div class="slide"><img src="photos/unid02-7.jpg" alt="Bikes indoor" loading="lazy"></div>
+        <div class="slide"><img src="photos/unid01-4.jpg" alt="Anilhas e pesos livres" loading="lazy"></div>
+        <div class="slide"><img src="photos/unid01-5.jpg" alt="Rack de halteres" loading="lazy"></div>
+        <div class="slide"><img src="photos/unid02-11.jpg" alt="Área de aparelhos" loading="lazy"></div>
+        <div class="slide"><img src="photos/unid02-14.jpg" alt="Estrutura completa de treino" loading="lazy"></div>
+        <div class="slide"><img src="photos/unid01-2.jpg" alt="Identidade Red Dragon Gym" loading="lazy"></div>
+        <div class="slide"><img src="photos/unid02-16.jpg" alt="Fachada Red Dragon Gym" loading="lazy"></div>
+        <div class="slide"><img src="photos/unid02-13.jpg" alt="Espaço kids" loading="lazy"></div>
+      </div>
+
+      <button class="slider-arrow slider-prev" aria-label="Foto anterior">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button class="slider-arrow slider-next" aria-label="Próxima foto">
+        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
+      <div class="slider-counter"><span id="sliderCurrent">1</span> / 10</div>
+
+      <div class="slider-dots" id="sliderDots"></div>
     </div>
   </div>
 </section>
+
+<script>
+(function(){
+  const track = document.getElementById('sliderTrack');
+  const slides = track.children;
+  const total = slides.length;
+  const dotsWrap = document.getElementById('sliderDots');
+  const counter = document.getElementById('sliderCurrent');
+  const slider = document.getElementById('rdgSlider');
+  let index = 0;
+  let autoplayTimer;
+
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Ir para foto ' + (i + 1));
+    dot.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(dot);
+  }
+  const dots = dotsWrap.children;
+
+  function update(){
+    track.style.transform = 'translateX(-' + (index * 100) + '%)';
+    for (let i = 0; i < dots.length; i++) dots[i].classList.toggle('active', i === index);
+    counter.textContent = index + 1;
+  }
+  function goTo(i){ index = (i + total) % total; update(); restartAutoplay(); }
+  function next(){ goTo(index + 1); }
+  function prev(){ goTo(index - 1); }
+
+  slider.querySelector('.slider-next').addEventListener('click', next);
+  slider.querySelector('.slider-prev').addEventListener('click', prev);
+
+  function restartAutoplay(){
+    clearInterval(autoplayTimer);
+    autoplayTimer = setInterval(next, 5000);
+  }
+  restartAutoplay();
+  slider.addEventListener('mouseenter', () => clearInterval(autoplayTimer));
+  slider.addEventListener('mouseleave', restartAutoplay);
+
+  // swipe support
+  let startX = 0, isDown = false;
+  track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; isDown = true; }, {passive:true});
+  track.addEventListener('touchmove', e => {
+    if (!isDown) return;
+    const diff = e.touches[0].clientX - startX;
+    if (Math.abs(diff) > 60) { diff > 0 ? prev() : next(); isDown = false; }
+  }, {passive:true});
+  track.addEventListener('touchend', () => { isDown = false; });
+})();
+</script>
 
 <!-- ================= MODALIDADES ================= -->
 <section class="modalidades" id="modalidades">
@@ -590,7 +683,7 @@
   <img src="monogram.png" alt="" class="cta-mono">
   <div class="wrap">
     <div class="eyebrow" style="justify-content:center;">Bora treinar?</div>
-    <h2>Sua vaga no dragão<br>tá esperando</h2>
+    <h2>Sua vaga na casa do dragão está te esperando</h2>
     <p>Fale agora com a unidade mais perto de você e comece essa semana.</p>
     <a class="btn btn-primary" href="https://wa.me/5518997288927?text=Ol%C3%A1!%20Quero%20come%C3%A7ar%20a%20treinar%20na%20Red%20Dragon%20Gym." target="_blank" rel="noopener">Falar no WhatsApp agora</a>
   </div>
